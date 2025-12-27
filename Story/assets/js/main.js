@@ -128,4 +128,84 @@
    */
   new PureCounter();
 
+  /**
+   * Section observer
+   */
+  const sections = document.querySelectorAll(".content-block");
+  const navLinksMap = new Map();
+  document.querySelectorAll(".content-nav a").forEach(
+      link => {
+        const id = link.getAttribute("href").slice(1);
+        navLinksMap.set(id, link)
+      }
+  );
+  let currentActiveLink = null;
+
+  const observer = new IntersectionObserver((entries) => {
+    let activeEntry = null;
+
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        if (!activeEntry || entry.intersectionRatio > activeEntry.intersectionRatio) {
+          activeEntry = entry;
+        }
+      }
+    }
+
+    if (!activeEntry) return;
+
+    let newActiveLink = navLinksMap.get(activeEntry.target.id);
+    currentActiveLink?.classList.remove("active");
+    currentActiveLink?.classList.remove("nav-link");
+    newActiveLink?.classList.add("active");
+    newActiveLink?.classList.add("nav-link");
+    currentActiveLink = newActiveLink;
+  }, {
+      rootMargin: '-40% 0px -40% 0px',
+      threshold: 0
+    }
+  );
+
+  sections.forEach(section => observer.observe(section));
+
+  /**
+   * Progress bar
+   */
+  function updateProgress() {
+    const progressFill = document.querySelector(".progress-fill");
+    const progressText = document.querySelector(".progress-text");
+
+    const scrollTop = window.scrollY;
+    const windowHeight = window.innerHeight;
+
+    let totalHeight = 0;
+    let readHeight = 0;
+
+    sections.forEach(section => {
+      const sectionTop = section.offsetTop;
+      const sectionHeight = section.offsetHeight;
+
+      totalHeight += sectionHeight;
+
+      if (scrollTop + windowHeight >= sectionTop) {
+        let visiblePart = Math.min(scrollTop + windowHeight - sectionTop, sectionHeight);
+        readHeight += visiblePart;
+      }
+    });
+
+    const percent = Math.min((readHeight / totalHeight) * 100, 100).toFixed(0);
+    progressFill.style.width = `${percent}%`;
+    progressText.textContent = `${percent}% Complete`;
+  }
+
+  let ticking = false;
+  window.addEventListener("scroll", () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        updateProgress();
+        ticking = false;
+      });
+    }
+    ticking = true;
+  });
 })();
