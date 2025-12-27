@@ -1,5 +1,5 @@
 /**
-* Template Name: Story
+* Template Name: beauty-room
 * Template URL: https://bootstrapmade.com/story-bootstrap-blog-template/
 * Updated: Aug 11 2025 with Bootstrap v5.3.7
 * Author: BootstrapMade.com
